@@ -81,6 +81,12 @@ const TaskModal = () => {
     onError: () => toast.error('Upload failed'),
   });
 
+  const deleteAttachmentMutation = useMutation({
+    mutationFn: (filename) => api.delete(`/tasks/${taskModalData._id}/attachments/${filename}`),
+    onSuccess: () => { queryClient.invalidateQueries(['task', taskModalData._id]); toast.success('Attachment deleted'); },
+    onError: () => toast.error('Failed to delete attachment'),
+  });
+
   const handleFile = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -254,10 +260,20 @@ const TaskModal = () => {
                     {uploadMutation.isPending ? 'Uploading...' : 'Attach file'}
                   </button>
                   {task?.attachments?.map((att, i) => (
-                    <a key={i} href={att.url} target="_blank" rel="noopener noreferrer" className="attachment-row">
-                      <Paperclip size={13} />
-                      <span className="attachment-name">{att.originalName || att.url}</span>
-                    </a>
+                    <div key={i} className="attachment-item-wrapper">
+                      <a href={att.url} target="_blank" rel="noopener noreferrer" className="attachment-row">
+                        <Paperclip size={13} />
+                        <span className="attachment-name">{att.originalName || att.url}</span>
+                      </a>
+                      <button 
+                        className="btn btn-ghost btn-icon btn-xs delete-attachment-btn"
+                        onClick={() => {
+                          if (window.confirm('Delete this attachment?')) deleteAttachmentMutation.mutate(att.filename);
+                        }}
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
                   ))}
                   {(!task?.attachments || task.attachments.length === 0) && (
                     <p className="empty-comments">No files attached yet.</p>

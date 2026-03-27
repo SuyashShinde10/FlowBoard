@@ -203,22 +203,43 @@
 
 /* Attachments */
 .attachments-area { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.attachment-item-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 .attachment-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 10px;
+  padding: 8px 12px;
   background: var(--color-bg-subtle);
   border: 1px solid var(--color-border);
-  border-radius: 6px;
-  font-size: 12.5px;
+  border-radius: 8px;
+  font-size: 13px;
   color: var(--color-text-secondary);
   text-decoration: none;
-  transition: border-color var(--t-fast), color var(--t-fast);
+  transition: all var(--t-fast);
+  flex: 1;
+  min-width: 0;
 }
-.attachment-row:hover { border-color: var(--color-border-strong); color: var(--color-text); }
+.attachment-row:hover {
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+  background: var(--color-surface-overlay);
+}
 .attachment-row svg { color: var(--color-text-tertiary); flex-shrink: 0; }
 .attachment-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.delete-attachment-btn {
+  opacity: 0.5;
+  transition: opacity var(--t-fast);
+}
+.delete-attachment-btn:hover {
+  opacity: 1;
+  color: var(--color-danger);
+  background: var(--color-danger-subtle);
+}
 
 /* Right sidebar */
 .task-modal-sidebar {
