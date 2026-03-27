@@ -72,7 +72,7 @@ const TaskModal = () => {
   const commentMutation = useMutation({
     mutationFn: (content) => api.post(`/tasks/${taskModalData._id}/comments`, { content }).then(r => r.data),
     onSuccess: (nc) => { setComments(prev => [...prev, nc]); setComment(''); },
-    onError: () => toast.error('Failed to post comment'),
+    onError: (err) => toast.error(err.response?.data?.message || 'Failed to post comment'),
   });
 
   const uploadMutation = useMutation({

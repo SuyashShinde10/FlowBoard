@@ -197,13 +197,16 @@ const getComments = async (req, res) => {
 const addComment = async (req, res) => {
   const { content } = req.body;
   if (!content?.trim()) return res.status(400).json({ message: 'Comment content is required' });
-  const task = await Task.findById(req.params.id);
+  const task = await Task.findById(req.params.id).select('project'); // Only need project ID for socket
   if (!task) return res.status(404).json({ message: 'Task not found' });
+  
   const comment = await Comment.create({ task: req.params.id, author: req.user._id, content });
   await comment.populate('author', 'name email avatar role');
 
   const io = req.app.get('io');
-  if (io) io.to(`project:${task.project.toString()}`).emit('comment:new', { taskId: req.params.id, comment });
+  if (io && task.project) {
+    io.to(`project:${task.project.toString()}`).emit('comment:new', { taskId: req.params.id, comment });
+  }
 
   res.status(201).json(comment);
 };
