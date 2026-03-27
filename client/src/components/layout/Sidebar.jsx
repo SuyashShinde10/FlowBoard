@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  LayoutDashboard, Settings, ChevronRight, Plus, LogOut,
+  LayoutDashboard, Settings, ChevronRight, Plus, LogOut, Sun, Moon,
 } from 'lucide-react';
 import useAppStore from '../../store/appStore';
 import useAuthStore from '../../store/authStore';
@@ -14,7 +14,7 @@ import CreateProjectModal from '../workspace/CreateProjectModal';
 import './Sidebar.css';
 
 const Sidebar = () => {
-  const { sidebarCollapsed, toggleSidebar, setActiveWorkspace } = useAppStore();
+  const { sidebarCollapsed, toggleSidebar, setActiveWorkspace, theme, toggleTheme } = useAppStore();
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const [expandedWS, setExpandedWS] = useState(null);
@@ -222,6 +222,22 @@ const Sidebar = () => {
               )}
             </AnimatePresence>
           </NavLink>
+
+          <button
+            className="nav-item"
+            onClick={toggleTheme}
+            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            style={{ border: 'none', background: 'none', width: '100%', cursor: 'pointer' }}
+          >
+            {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+            <AnimatePresence>
+              {!sidebarCollapsed && (
+                <motion.span className="nav-item-label" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </button>
 
           <div className="user-row" title={`${user?.name} · ${user?.email}`}>
             <Avatar name={user?.name || '?'} size="sm" src={user?.avatar} />
