@@ -17,28 +17,46 @@ const taskRoutes = require('./routes/task.routes');
 const analyticsRoutes = require('./routes/analytics.routes');
 
 const app = express();
-app.set('trust proxy', 1); // Trust Render's proxy for rate limiting
-const httpServer = http.createServer(app);
+app.set('trust proxy', 1);
 
-// Socket.IO
-const allowedOrigins = [
-  process.env.CLIENT_URL?.replace(/\/$/, ''), // Strip trailing slash
+// Better CORS origins handling
+const origins = [
   'https://flowboard-self.vercel.app',
+  process.env.CLIENT_URL,
   'http://localhost:5173',
   'http://localhost:5174',
   'http://localhost:5175'
-].filter(Boolean);
+].filter(Boolean).map(o => o.replace(/\/$/, ''));
+const allowedOrigins = [...new Set(origins)];
 
+// 1. CORS first (crucial for preflight)
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+
+const httpServer = http.createServer(app);
+
+// Socket.IO sync
 const io = new Server(httpServer, {
-  cors: { origin: allowedOrigins, methods: ['GET', 'POST', 'PUT', 'DELETE'] },
+  cors: { origin: allowedOrigins, credentials: true, methods: ['GET', 'POST', 'PUT', 'DELETE'] },
 });
 app.set('io', io);
 socketHandler(io);
 
 // Middleware
-app.use(helmet()); // Security headers
-app.use(mongoSanitize()); // Prevent NoSQL injection
-app.use(cors({ origin: allowedOrigins, credentials: true }));
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" } // Allow cross-origin assets
+}));
+app.use(mongoSanitize());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
