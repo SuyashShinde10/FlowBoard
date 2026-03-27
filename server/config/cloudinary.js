@@ -11,11 +11,9 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary,
   params: async (req, file) => {
-    const isImage = file.mimetype.startsWith('image/');
     return {
       folder: 'pmp-attachments',
-      allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'xlsx', 'txt', 'zip'],
-      resource_type: isImage ? 'image' : 'raw', // Use 'raw' for PDFs and other files
+      resource_type: 'auto', // Cloudinary will auto-detect type
     };
   },
 });
