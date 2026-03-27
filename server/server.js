@@ -17,6 +17,7 @@ const taskRoutes = require('./routes/task.routes');
 const analyticsRoutes = require('./routes/analytics.routes');
 
 const app = express();
+app.set('trust proxy', 1); // Trust Render's proxy for rate limiting
 const httpServer = http.createServer(app);
 
 // Socket.IO
