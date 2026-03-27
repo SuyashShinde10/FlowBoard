@@ -21,7 +21,8 @@ const httpServer = http.createServer(app);
 
 // Socket.IO
 const allowedOrigins = [
-  process.env.CLIENT_URL,
+  process.env.CLIENT_URL?.replace(/\/$/, ''), // Strip trailing slash
+  'https://flowboard-self.vercel.app',
   'http://localhost:5173',
   'http://localhost:5174',
   'http://localhost:5175'
