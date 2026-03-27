@@ -46,10 +46,10 @@ const getTask = async (req, res) => {
   const task = await Task.findById(req.params.id)
     .populate('assignees', 'name email avatar role')
     .populate('createdBy', 'name email avatar role');
-  if (!task) return res.status(404).json({ message: 'Task not found' });
-  const logs = await ActivityLog.find({ task: task._id }).populate('user', 'name email avatar role').sort('-createdAt').limit(50);
-  const comments = await Comment.find({ task: task._id }).populate('author', 'name email avatar role').sort('createdAt');
-  res.json({ ...task.toObject(), activityLog: logs, comments });
+  const workspace = await Workspace.findById(task.workspace);
+  const m = workspace?.members.find(m => m.user?.toString() === req.user._id.toString());
+  
+  res.json({ ...task.toObject(), activityLog: logs, comments, myRole: m?.role || 'member' });
 };
 
 // @PUT /api/tasks/:id
@@ -95,6 +95,12 @@ const updateTask = async (req, res) => {
 const deleteTask = async (req, res) => {
   const task = await Task.findById(req.params.id);
   if (!task) return res.status(404).json({ message: 'Task not found' });
+
+  const workspace = await Workspace.findById(task.workspace);
+  const m = workspace.members.find(m => m.user?.toString() === req.user._id.toString());
+  const role = m ? m.role : null;
+  if (!['admin', 'manager'].includes(role)) return res.status(403).json({ message: 'Access denied. Only admins/managers can delete tasks.' });
+
   // Delete cloudinary attachments
   for (const att of task.attachments) {
     if (att.publicId) {

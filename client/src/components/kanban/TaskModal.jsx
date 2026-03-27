@@ -351,14 +351,16 @@ const TaskModal = () => {
               </div>
             )}
 
-            <div className="task-delete-btn">
-              <button
-                className="btn btn-danger btn-sm w-full"
-                onClick={() => { if (window.confirm('Delete this task?')) deleteMutation.mutate(); }}
-              >
-                <Trash2 size={13} /> Delete task
-              </button>
-            </div>
+            {['admin', 'manager'].includes(task?.myRole) && (
+              <div className="task-delete-btn">
+                <button
+                  className="btn btn-danger btn-sm w-full"
+                  onClick={() => { if (window.confirm('Delete this task?')) deleteMutation.mutate(); }}
+                >
+                  <Trash2 size={13} /> Delete task
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </motion.div>

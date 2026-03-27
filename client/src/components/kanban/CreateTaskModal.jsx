@@ -5,7 +5,8 @@ import api from '../../services/api';
 import Modal from '../ui/Modal';
 import Avatar from '../ui/Avatar';
 
-const CreateTaskModal = ({ projectId, workspaceId, columnId, project, onClose }) => {
+const CreateTaskModal = ({ projectId, workspaceId, columnId, project, onClose, myRole }) => {
+  const isManagerOrAdmin = ['admin', 'manager'].includes(myRole);
   const queryClient = useQueryClient();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -90,7 +91,7 @@ const CreateTaskModal = ({ projectId, workspaceId, columnId, project, onClose })
           </div>
         </div>
 
-        {project?.members?.length > 0 && (
+        {isManagerOrAdmin && project?.members?.length > 0 && (
           <div className="input-group">
             <label className="input-label">Assignees (Optional)</label>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>

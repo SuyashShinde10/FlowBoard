@@ -41,9 +41,10 @@ const getProject = async (req, res) => {
     .populate('members', 'name email avatar');
   if (!project) return res.status(404).json({ message: 'Project not found' });
   const workspace = await Workspace.findById(project.workspace);
-  const isMember = workspace?.members.some(m => m.user?.toString() === req.user._id.toString());
-  if (!isMember) return res.status(403).json({ message: 'Access denied' });
-  res.json(project);
+  const m = workspace?.members.find(m => m.user?.toString() === req.user._id.toString());
+  if (!m) return res.status(403).json({ message: 'Access denied' });
+  
+  res.json({ ...project.toObject(), myRole: m.role });
 };
 
 // @PUT /api/projects/:id
@@ -122,6 +123,11 @@ const addProjectMember = async (req, res) => {
   const { userId } = req.body;
   const project = await Project.findById(req.params.id);
   if (!project) return res.status(404).json({ message: 'Project not found' });
+  
+  const workspace = await Workspace.findById(project.workspace);
+  const role = getUserWorkspaceRole(workspace, req.user._id);
+  if (!['admin', 'manager'].includes(role)) return res.status(403).json({ message: 'Access denied. Only admins/managers can assign members.' });
+
   if (!project.members.includes(userId)) {
     project.members.push(userId);
     await project.save();

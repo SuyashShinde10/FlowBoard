@@ -6,7 +6,8 @@ import {
   closestCorners, defaultDropAnimation,
 } from '@dnd-kit/core';
 import { motion } from 'framer-motion';
-import { Plus, Settings2, Users, Search, Trash2 } from 'lucide-react';
+import { Plus, Settings2, Users, Search, Trash2, BarChart3 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../services/api';
 import useAppStore from '../store/appStore';
@@ -171,6 +172,7 @@ const ProjectPage = () => {
   );
 
   if (!project) return <div className="empty-state"><p>Project not found</p></div>;
+  const isManagerOrAdmin = ['admin', 'manager'].includes(project.myRole);
 
   return (
     <div className="project-page">
@@ -211,9 +213,20 @@ const ProjectPage = () => {
               </div>
             ))}
           </div>
-          <button className="btn btn-secondary btn-sm" onClick={() => setShowAddColumn(true)}>
-            <Plus size={14} /> Column
-          </button>
+            {isManagerOrAdmin && (
+              <button 
+                className="btn btn-secondary btn-sm" 
+                onClick={() => navigate(`/project/${projectId}/analytics`)}
+                title="View Project Analytics"
+              >
+                <BarChart3 size={14} /> Analytics
+              </button>
+            )}
+            {isManagerOrAdmin && (
+              <button className="btn btn-secondary btn-sm" onClick={() => setShowAddColumn(true)}>
+                <Plus size={14} /> Column
+              </button>
+            )}
         </div>
       </div>
 
@@ -236,13 +249,15 @@ const ProjectPage = () => {
             />
           ))}
 
-          <button 
-            className="btn btn-ghost" 
-            style={{ minWidth: 280, height: 40, border: '1px dashed var(--color-border-strong)', justifyContent: 'flex-start', color: 'var(--color-text-tertiary)' }}
-            onClick={() => setShowAddColumn(true)}
-          >
-            <Plus size={14} /> Add column
-          </button>
+          {isManagerOrAdmin && (
+            <button 
+              className="btn btn-ghost" 
+              style={{ minWidth: 280, height: 40, border: '1px dashed var(--color-border-strong)', justifyContent: 'flex-start', color: 'var(--color-text-tertiary)' }}
+              onClick={() => setShowAddColumn(true)}
+            >
+              <Plus size={14} /> Add column
+            </button>
+          )}
         </div>
 
         <DragOverlay dropAnimation={defaultDropAnimation}>
@@ -256,6 +271,7 @@ const ProjectPage = () => {
           workspaceId={project.workspace}
           columnId={showCreateTask}
           project={project}
+          myRole={project.myRole}
           onClose={() => setShowCreateTask(null)}
         />
       )}

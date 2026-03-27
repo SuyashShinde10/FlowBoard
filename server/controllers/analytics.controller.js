@@ -4,6 +4,14 @@ const ActivityLog = require('../models/ActivityLog.model');
 // @GET /api/analytics/project/:projectId
 const getProjectAnalytics = async (req, res) => {
   const { projectId } = req.params;
+  const project = await (require('../models/Project.model')).findById(projectId);
+  if (!project) return res.status(404).json({ message: 'Project not found' });
+  const workspace = await (require('../models/Workspace.model')).findById(project.workspace);
+  const m = workspace?.members.find(m => m.user?.toString() === req.user._id.toString());
+  if (!m || !['admin', 'manager'].includes(m.role)) {
+    return res.status(403).json({ message: 'Access denied. Only admins/managers can view analytics.' });
+  }
+
   const { days = 30 } = req.query;
   const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
