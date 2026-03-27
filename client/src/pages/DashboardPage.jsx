@@ -66,7 +66,9 @@ const DashboardPage = () => {
           <span className="stat-value">
             {user?.createdAt ? formatDistanceToNow(new Date(user.createdAt), { addSuffix: false }) : '—'}
           </span>
-          <span className="stat-label">Member for</span>
+          <span className="stat-label">
+            {user?.role ? `${user.role.charAt(0).toUpperCase() + user.role.slice(1).toLowerCase()} for` : 'Member for'}
+          </span>
         </div>
       </div>
 
