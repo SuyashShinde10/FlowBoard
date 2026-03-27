@@ -96,12 +96,15 @@ httpServer.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   
   // Keep Render alive (self-pinging every 14 minutes)
-  const cronUrl = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
-  setInterval(() => {
-    http.get(`${cronUrl}/api/health`, (res) => {
-      console.log('💓 Heartbeat: Keeping server alive');
-    }).on('error', (err) => {
-      console.error('💓 Heartbeat error:', err.message);
-    });
-  }, 14 * 60 * 1000); 
+  const cronUrl = process.env.RENDER_EXTERNAL_URL;
+  if (cronUrl) {
+    setInterval(() => {
+      const protocol = cronUrl.startsWith('https') ? require('https') : require('http');
+      protocol.get(`${cronUrl.replace(/\/$/, '')}/api/health`, (res) => {
+        console.log('💓 Heartbeat: Keeping server alive');
+      }).on('error', (err) => {
+        console.error('💓 Heartbeat error:', err.message);
+      });
+    }, 14 * 60 * 1000); 
+  }
 });
