@@ -31,16 +31,8 @@ const allowedOrigins = [...new Set(origins)];
 
 // 1. CORS first (crucial for preflight)
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: true, // Dynamically allow the site's origin
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
 const httpServer = http.createServer(app);
