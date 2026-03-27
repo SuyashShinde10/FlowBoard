@@ -14,6 +14,7 @@ import { joinProject, leaveProject, getSocket } from '../services/socket';
 import KanbanColumn from '../components/kanban/KanbanColumn';
 import TaskCard from '../components/kanban/TaskCard';
 import AddColumnModal from '../components/kanban/AddColumnModal';
+import CreateTaskModal from '../components/kanban/CreateTaskModal';
 import Avatar from '../components/ui/Avatar';
 import Skeleton from '../components/ui/Skeleton';
 import './ProjectPage.css';
