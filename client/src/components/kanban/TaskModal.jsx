@@ -195,6 +195,7 @@ const TaskModal = () => {
                           <div className="comment-bubble-inner">
                             <div className="comment-author">
                               {c.author?.name}
+                              {c.author?.role && <span className="comment-role-tag">{c.author.role}</span>}
                               <span>{formatDistanceToNow(new Date(c.createdAt), { addSuffix: true })}</span>
                             </div>
                             <p className="comment-text">{c.content}</p>
@@ -234,7 +235,9 @@ const TaskModal = () => {
                     <div key={log._id} className="activity-item">
                       <Avatar name={log.user?.name || '?'} size="xs" src={log.user?.avatar} />
                       <div>
-                        <span className="activity-text">{log.description}</span>
+                        <span className="activity-text">
+                          <strong>{log.user?.name}</strong> {log.user?.role && <small style={{ opacity: 0.6, fontSize: '0.8em', textTransform: 'uppercase' }}>({log.user.role})</small>} {log.description}
+                        </span>
                         <span className="activity-time"> — {formatDistanceToNow(new Date(log.createdAt), { addSuffix: true })}</span>
                       </div>
                     </div>

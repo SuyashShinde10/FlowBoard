@@ -14,8 +14,8 @@ const createActivity = async (taskId, projectId, userId, action, field, oldValue
 // @GET /api/tasks/project/:projectId
 const getTasks = async (req, res) => {
   const tasks = await Task.find({ project: req.params.projectId })
-    .populate('assignees', 'name email avatar')
-    .populate('createdBy', 'name email avatar')
+    .populate('assignees', 'name email avatar role')
+    .populate('createdBy', 'name email avatar role')
     .sort('order');
   res.json(tasks);
 };
@@ -30,8 +30,8 @@ const createTask = async (req, res) => {
     assignees: assignees || [], priority: priority || 'medium', labels: labels || [],
     dueDate, createdBy: req.user._id, order: lastTask ? lastTask.order + 1 : 0, estimatedHours,
   });
-  await task.populate('assignees', 'name email avatar');
-  await task.populate('createdBy', 'name email avatar');
+  await task.populate('assignees', 'name email avatar role');
+  await task.populate('createdBy', 'name email avatar role');
   await createActivity(task._id, projectId, req.user._id, 'created', null, null, null, `Task "${title}" created`);
 
   // Emit socket event
@@ -44,11 +44,11 @@ const createTask = async (req, res) => {
 // @GET /api/tasks/:id
 const getTask = async (req, res) => {
   const task = await Task.findById(req.params.id)
-    .populate('assignees', 'name email avatar')
-    .populate('createdBy', 'name email avatar');
+    .populate('assignees', 'name email avatar role')
+    .populate('createdBy', 'name email avatar role');
   if (!task) return res.status(404).json({ message: 'Task not found' });
-  const logs = await ActivityLog.find({ task: task._id }).populate('user', 'name email avatar').sort('-createdAt').limit(50);
-  const comments = await Comment.find({ task: task._id }).populate('author', 'name email avatar').sort('createdAt');
+  const logs = await ActivityLog.find({ task: task._id }).populate('user', 'name email avatar role').sort('-createdAt').limit(50);
+  const comments = await Comment.find({ task: task._id }).populate('author', 'name email avatar role').sort('createdAt');
   res.json({ ...task.toObject(), activityLog: logs, comments });
 };
 
@@ -84,8 +84,8 @@ const updateTask = async (req, res) => {
   if (actualHours !== undefined) task.actualHours = actualHours;
 
   await task.save();
-  await task.populate('assignees', 'name email avatar');
-  await task.populate('createdBy', 'name email avatar');
+  await task.populate('assignees', 'name email avatar role');
+  await task.populate('createdBy', 'name email avatar role');
 
   if (io) io.to(`project:${task.project.toString()}`).emit('task:updated', task);
   res.json(task);
@@ -183,7 +183,7 @@ const deleteAttachment = async (req, res) => {
 
 // @GET /api/tasks/:id/comments
 const getComments = async (req, res) => {
-  const comments = await Comment.find({ task: req.params.id }).populate('author', 'name email avatar').sort('createdAt');
+  const comments = await Comment.find({ task: req.params.id }).populate('author', 'name email avatar role').sort('createdAt');
   res.json(comments);
 };
 
@@ -194,7 +194,7 @@ const addComment = async (req, res) => {
   const task = await Task.findById(req.params.id);
   if (!task) return res.status(404).json({ message: 'Task not found' });
   const comment = await Comment.create({ task: req.params.id, author: req.user._id, content });
-  await comment.populate('author', 'name email avatar');
+  await comment.populate('author', 'name email avatar role');
 
   const io = req.app.get('io');
   if (io) io.to(`project:${task.project.toString()}`).emit('comment:new', { taskId: req.params.id, comment });
@@ -210,7 +210,7 @@ const updateComment = async (req, res) => {
   comment.content = req.body.content;
   comment.edited = true;
   await comment.save();
-  await comment.populate('author', 'name email avatar');
+  await comment.populate('author', 'name email avatar role');
   res.json(comment);
 };
 
