@@ -42,13 +42,16 @@
 
 /* Navbar */
 .landing-nav {
-  position: relative;
-  z-index: 10;
+  position: sticky;
+  top: 0;
+  z-index: 100;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24px 8%;
-  background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+  padding: 16px 8%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .landing-logo {
@@ -83,12 +86,14 @@
   color: #a1a1aa;
 }
 
-.landing-nav-links span {
+.landing-nav-links a {
   cursor: pointer;
   transition: color 0.2s;
+  color: #a1a1aa;
+  text-decoration: none;
 }
 
-.landing-nav-links span:hover {
+.landing-nav-links a:hover {
   color: white;
 }
 
@@ -98,7 +103,7 @@
   z-index: 10;
   display: flex;
   flex: 1;
-  padding: 60px 8%;
+  padding: 80px 8%;
   align-items: center;
   justify-content: space-between;
   gap: 60px;

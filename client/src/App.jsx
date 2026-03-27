@@ -21,7 +21,7 @@ const queryClient = new QueryClient({
 
 const ProtectedRoute = ({ children }) => {
   const { token } = useAuthStore();
-  if (!token) return <Navigate to="/login" replace />;
+  if (!token) return <Navigate to="/" replace />;
   return children;
 };
 
@@ -36,23 +36,24 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<AuthPage />} />
+          <Route path="/" element={<AuthPage />} />
           <Route path="/features" element={<FeaturesPage />} />
           <Route path="/customers" element={<CustomersPage />} />
           <Route path="/pricing" element={<PricingPage />} />
-          <Route path="/" element={
+          
+          <Route element={
             <ProtectedRoute>
               <AppLayout />
             </ProtectedRoute>
           }>
-            <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="dashboard" element={<DashboardPage />} />
-            <Route path="workspace/:workspaceId" element={<WorkspacePage />} />
-            <Route path="project/:projectId" element={<ProjectPage />} />
-            <Route path="project/:projectId/analytics" element={<AnalyticsPage />} />
-            <Route path="settings" element={<SettingsPage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/workspace/:workspaceId" element={<WorkspacePage />} />
+            <Route path="/project/:projectId" element={<ProjectPage />} />
+            <Route path="/project/:projectId/analytics" element={<AnalyticsPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
           </Route>
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
       <Toaster
