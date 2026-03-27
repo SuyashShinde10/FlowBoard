@@ -5,6 +5,9 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const socketHandler = require('./socket/socket');
+const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const rateLimit = require('express-rate-limit');
 
 // Routes
 const authRoutes = require('./routes/auth.routes');
@@ -31,9 +34,28 @@ app.set('io', io);
 socketHandler(io);
 
 // Middleware
+app.use(helmet()); // Security headers
+app.use(mongoSanitize()); // Prevent NoSQL injection
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Global Rate Limiting
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: { message: 'Too many requests. Please try again in 15 minutes.' }
+});
+app.use('/api', globalLimiter);
+
+// Stricter Rate Limiting for Auth
+const authLimiter = rateLimit({
+  windowMs: 30 * 60 * 1000,
+  max: 20,
+  message: { message: 'Too many login attempts. Please try again in 30 minutes.' }
+});
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
 
 // Connect DB
 connectDB();
