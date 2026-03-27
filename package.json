@@ -1,0 +1,10 @@
+{
+  "name": "flowboard-pmp",
+  "private": true,
+  "workspaces": ["client", "server"],
+  "scripts": {
+    "dev": "start \"Server\" /D server npm run dev & cd client && npm run dev",
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+    "build": "cd client && npm run build"
+  }
+}

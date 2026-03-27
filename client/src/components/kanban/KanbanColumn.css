@@ -1,0 +1,108 @@
+.kanban-column {
+  width: 280px;
+  min-width: 280px;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  max-height: calc(100vh - 160px);
+  transition: border-color var(--t-fast), background var(--t-fast);
+}
+
+.kanban-column.drop-over {
+  border-color: var(--color-accent);
+  background: var(--color-accent-subtle);
+}
+
+.column-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.column-title-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.column-title-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.column-count-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  background: var(--color-surface-overlay);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 0 5px;
+  height: 18px;
+  line-height: 18px;
+  flex-shrink: 0;
+}
+
+.column-tasks {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-height: 40px;
+}
+
+.column-empty-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  border: 1.5px dashed var(--color-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all var(--t-fast);
+}
+.column-empty-area:hover {
+  border-color: var(--color-accent);
+  background: var(--color-accent-subtle);
+}
+.column-empty-area span {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.column-add-task {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  border-top: 1px solid var(--color-border);
+  border-radius: 0 0 7px 7px;
+  transition: background var(--t-fast), color var(--t-fast);
+  flex-shrink: 0;
+}
+.column-add-task:hover { background: var(--color-surface-overlay); color: var(--color-text-secondary); }
