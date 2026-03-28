@@ -85,6 +85,7 @@ const CreateTaskModal = ({ projectId, workspaceId, columnId, project, onClose, m
             <input 
               className="input" 
               type="date" 
+              min={new Date().toISOString().split('T')[0]}
               value={dueDate} 
               onChange={e => setDueDate(e.target.value)} 
             />

@@ -320,6 +320,7 @@ const TaskModal = () => {
               <input
                 className="input"
                 type="date"
+                min={new Date().toISOString().split('T')[0]}
                 style={{ height: 30, padding: '0 8px', fontSize: 12 }}
                 defaultValue={task?.dueDate ? task.dueDate.substring(0, 10) : ''}
                 onChange={e => updateMutation.mutate({ dueDate: e.target.value || null })}
