@@ -195,20 +195,37 @@ const getComments = async (req, res) => {
 
 // @POST /api/tasks/:id/comments
 const addComment = async (req, res) => {
-  const { content } = req.body;
-  if (!content?.trim()) return res.status(400).json({ message: 'Comment content is required' });
-  const task = await Task.findById(req.params.id).select('project'); // Only need project ID for socket
-  if (!task) return res.status(404).json({ message: 'Task not found' });
-  
-  const comment = await Comment.create({ task: req.params.id, author: req.user._id, content });
-  await comment.populate('author', 'name email avatar role');
+  try {
+    const { content } = req.body;
+    if (!content?.trim()) return res.status(400).json({ message: 'Comment content is required' });
+    
+    const task = await Task.findById(req.params.id).select('project');
+    if (!task) return res.status(404).json({ message: 'Task not found' });
+    
+    if (!req.user?._id) return res.status(401).json({ message: 'User context missing' });
 
-  const io = req.app.get('io');
-  if (io && task.project) {
-    io.to(`project:${task.project.toString()}`).emit('comment:new', { taskId: req.params.id, comment });
+    const comment = await Comment.create({ 
+      task: req.params.id, 
+      author: req.user._id, 
+      content 
+    });
+    
+    await comment.populate('author', 'name email avatar role');
+
+    const io = req.app.get('io');
+    if (io && task.project) {
+      try {
+        io.to(`project:${task.project.toString()}`).emit('comment:new', { taskId: req.params.id, comment });
+      } catch (e) {
+        console.error('Socket emission error:', e);
+      }
+    }
+
+    res.status(201).json(comment);
+  } catch (err) {
+    console.error('Comment error:', err);
+    res.status(500).json({ message: 'Internal Server Error while posting comment', error: err.message });
   }
-
-  res.status(201).json(comment);
 };
 
 // @PUT /api/tasks/:taskId/comments/:commentId
