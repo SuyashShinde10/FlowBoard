@@ -54,6 +54,21 @@
   gap: 12px;
 }
 
+.avatar-group {
+  display: flex;
+  align-items: center;
+  margin-right: 4px;
+}
+
+.avatar-group > div {
+  margin-right: -8px;
+  cursor: default;
+}
+
+.avatar-group > div:last-child {
+  margin-right: 0;
+}
+
 .avatar-remove-btn {
   position: absolute;
   top: -4px;

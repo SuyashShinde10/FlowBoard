@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  DndContext, DragOverlay, PointerSensor, useSensor, useSensors,
+  DndContext, DragOverlay, PointerSensor, useSensors, useSensor,
   closestCorners, defaultDropAnimation,
 } from '@dnd-kit/core';
 import { motion } from 'framer-motion';
-import { Plus, Settings2, Users, Search, Trash2, BarChart3 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Plus, Settings2, Users, Search, Trash2, BarChart3, UserPlus } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../services/api';
 import useAppStore from '../store/appStore';
@@ -16,16 +15,19 @@ import KanbanColumn from '../components/kanban/KanbanColumn';
 import TaskCard from '../components/kanban/TaskCard';
 import AddColumnModal from '../components/kanban/AddColumnModal';
 import CreateTaskModal from '../components/kanban/CreateTaskModal';
+import AddProjectMemberModal from '../components/workspace/AddProjectMemberModal';
 import Avatar from '../components/ui/Avatar';
 import Skeleton from '../components/ui/Skeleton';
 import './ProjectPage.css';
 
 const ProjectPage = () => {
   const { projectId } = useParams();
+  const navigate = useNavigate();
   const { openTaskModal, setActiveProject } = useAppStore();
   const queryClient = useQueryClient();
   const [activeTask, setActiveTask] = useState(null);
   const [showCreateTask, setShowCreateTask] = useState(null); // columnId
+  const [showAddMember, setShowAddMember] = useState(false);
   const [showAddColumn, setShowAddColumn] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -212,6 +214,16 @@ const ProjectPage = () => {
                 )}
               </div>
             ))}
+            {isManagerOrAdmin && (
+              <button 
+                className="btn btn-secondary btn-icon btn-sm" 
+                onClick={() => setShowAddMember(true)}
+                title="Add members to project"
+                style={{ borderRadius: '50%', width: 32, height: 32, padding: 0 }}
+              >
+                <UserPlus size={14} />
+              </button>
+            )}
           </div>
             {isManagerOrAdmin && (
               <button 
@@ -273,6 +285,13 @@ const ProjectPage = () => {
           project={project}
           myRole={project.myRole}
           onClose={() => setShowCreateTask(null)}
+        />
+      )}
+      {showAddMember && (
+        <AddProjectMemberModal 
+          projectId={projectId}
+          currentMembers={project.members}
+          onClose={() => setShowAddMember(false)}
         />
       )}
       {showAddColumn && (
