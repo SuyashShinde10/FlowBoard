@@ -96,23 +96,62 @@ const AnalyticsPage = () => {
     created: createdOverTime.find(d => d.date === date)?.count || 0
   }));
 
+  // Burn-down Data: Starting from total tasks, subtract completed each day
+  let remaining = totalTasks;
+  const burndownData = completionTrend.map(d => {
+    remaining -= d.completed;
+    return { date: d.date, remaining: Math.max(0, remaining) };
+  });
+
+  const COLORS = ['#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#06b6d4', '#8b5cf6'];
+  const THEME_COLORS = {
+    grid: 'var(--color-border)',
+    text: 'var(--color-text-tertiary)'
+  };
+
   const cards = [
-    { title: 'Task Completion', desc: 'Over the last 30 days', icon: <Activity size={16} />,
+    { title: 'Task Completion', desc: 'New vs Finished (Daily)', icon: <Activity size={16} />,
       content: (
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={completionTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+          <ComposedChart data={completionTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <XAxis dataKey="date" stroke={THEME_COLORS.text} fontSize={10} tickLine={false} axisLine={false} />
+            <YAxis stroke={THEME_COLORS.text} fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
+            <Tooltip content={<CustomTooltip />} />
+            <Bar dataKey="created" barSize={12} fill="#6366f1" radius={[4, 4, 0, 0]} />
+            <Line type="monotone" dataKey="completed" stroke="#22c55e" strokeWidth={2} dot={{ r: 3 }} />
+          </ComposedChart>
+        </ResponsiveContainer>
+      )
+    },
+    { title: 'Project Burndown', desc: 'Tasks Remaining over time', icon: <BarChart3 size={16} />,
+      content: (
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={burndownData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <defs>
-              <linearGradient id="colorCompleted" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3}/>
-                <stop offset="95%" stopColor="#22c55e" stopOpacity={0}/>
+              <linearGradient id="colorRemain" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#6366f1" stopOpacity={0.1}/>
+                <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={THEME_COLORS.grid} />
             <XAxis dataKey="date" stroke={THEME_COLORS.text} fontSize={10} tickLine={false} axisLine={false} />
             <YAxis stroke={THEME_COLORS.text} fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
             <Tooltip content={<CustomTooltip />} />
-            <Area type="monotone" dataKey="completed" stroke="#22c55e" fillOpacity={1} fill="url(#colorCompleted)" strokeWidth={2} />
+            <Area type="monotone" dataKey="remaining" stroke="#6366f1" fillOpacity={1} fill="url(#colorRemain)" strokeWidth={2} />
           </AreaChart>
+        </ResponsiveContainer>
+      )
+    },
+    { title: 'Team Productivity', desc: 'Tasks completed per member', icon: <Briefcase size={16} />,
+      content: (
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={productivityPerMember} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={THEME_COLORS.grid} />
+            <XAxis dataKey="name" stroke={THEME_COLORS.text} fontSize={10} tickLine={false} axisLine={false} />
+            <YAxis stroke={THEME_COLORS.text} fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
+            <Tooltip content={<CustomTooltip />} />
+            <Bar dataKey="completed" barSize={30} fill="#22c55e" radius={[4, 4, 0, 0]} />
+          </BarChart>
         </ResponsiveContainer>
       )
     },
@@ -138,27 +177,11 @@ const AnalyticsPage = () => {
               ))}
             </Pie>
             <Tooltip content={<CustomTooltip />} />
-            <Legend iconType="circle" wrapperStyle={{ fontSize: 11, color: THEME_COLORS.text }} />
           </PieChart>
         </ResponsiveContainer>
       )
     },
-    { title: 'Task Flow', desc: 'Created vs Completed per day', icon: <BarChart3 size={16} />,
-      content: (
-        <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={completionTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={THEME_COLORS.grid} />
-            <XAxis dataKey="date" stroke={THEME_COLORS.text} fontSize={10} tickLine={false} axisLine={false} />
-            <YAxis stroke={THEME_COLORS.text} fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend iconType="circle" wrapperStyle={{ fontSize: 11, color: THEME_COLORS.text }} />
-            <Bar dataKey="created" barSize={12} fill="#6366f1" radius={[4, 4, 0, 0]} />
-            <Line type="monotone" dataKey="completed" stroke="#22c55e" strokeWidth={2} dot={{ r: 3 }} />
-          </ComposedChart>
-        </ResponsiveContainer>
-      )
-    },
-    { title: 'Project Overdue Trend', desc: 'Overdue tasks ending on day', icon: <Clock size={16} />,
+    { title: 'Overdue Analysis', desc: 'Overdue tasks ending on day', icon: <Clock size={16} />,
       content: (
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={overdueTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
