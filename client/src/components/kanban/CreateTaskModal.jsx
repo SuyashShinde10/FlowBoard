@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { Search } from 'lucide-react';
+import { Search, UserPlus, Plus } from 'lucide-react';
 import api from '../../services/api';
 import Modal from '../ui/Modal';
 import Avatar from '../ui/Avatar';
@@ -111,8 +111,20 @@ const CreateTaskModal = ({ projectId, workspaceId, columnId, project, onClose, m
                     style={{ fontSize: 11, padding: '2px 8px 2px 26px', height: 24, borderRadius: 4, border: '1px solid var(--color-border)', background: 'transparent' }}
                   />
                 </div>
-                <button type="button" className="text-accent text-xs hover-underline" onClick={() => setShowAddMember(true)}>
-                  Add Team
+                <button 
+                  type="button" 
+                  onClick={() => setShowAddMember(true)}
+                  style={{ 
+                    display: 'flex', alignItems: 'center', gap: 4,
+                    padding: '2px 8px', borderRadius: 6,
+                    fontSize: 11, fontWeight: 600,
+                    background: 'var(--color-accent-subtle)',
+                    color: 'var(--color-accent)',
+                    border: '1px solid var(--color-accent-border)', cursor: 'pointer',
+                    transition: 'all var(--t-fast)'
+                  }}
+                >
+                  <UserPlus size={12} /> Add Member
                 </button>
               </div>
             </div>
