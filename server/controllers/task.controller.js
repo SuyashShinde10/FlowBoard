@@ -46,9 +46,14 @@ const getTask = async (req, res) => {
   const task = await Task.findById(req.params.id)
     .populate('assignees', 'name email avatar role')
     .populate('createdBy', 'name email avatar role');
+  if (!task) return res.status(404).json({ message: 'Task not found' });
+
   const workspace = await Workspace.findById(task.workspace);
   const m = workspace?.members.find(m => m.user?.toString() === req.user._id.toString());
   
+  const logs = await ActivityLog.find({ task: task._id }).populate('user', 'name avatar').sort('-createdAt');
+  const comments = await Comment.find({ task: task._id }).populate('author', 'name email avatar role').sort('createdAt');
+
   res.json({ ...task.toObject(), activityLog: logs, comments, myRole: m?.role || 'member' });
 };
 
