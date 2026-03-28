@@ -32,11 +32,19 @@ const TaskModal = () => {
   const fileRef = useRef();
   const commentRef = useRef();
 
-  const { data: taskDetail, isLoading } = useQuery({
+  const { data: taskDetail, isLoading, error } = useQuery({
     queryKey: ['task', taskModalData?._id],
-    queryFn: () => api.get(`/tasks/${taskModalData._id}`).then(r => r.data),
+    queryFn: () => api.get(`/tasks/${taskModalData?._id}`).then(r => r.data),
     enabled: !!taskModalData?._id,
+    retry: false, // Don't retry if it's missing
   });
+
+  useEffect(() => {
+    if (error?.response?.status === 404) {
+      toast.error('Task not found. It may have been deleted.');
+      closeTaskModal();
+    }
+  }, [error, closeTaskModal]);
 
   useEffect(() => {
     if (taskDetail?.comments) setComments(taskDetail.comments);
