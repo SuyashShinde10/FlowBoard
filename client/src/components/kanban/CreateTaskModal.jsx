@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
+import { Search } from 'lucide-react';
 import api from '../../services/api';
 import Modal from '../ui/Modal';
 import Avatar from '../ui/Avatar';
+import AddProjectMemberModal from '../workspace/AddProjectMemberModal';
 
 const CreateTaskModal = ({ projectId, workspaceId, columnId, project, onClose, myRole }) => {
   const isManagerOrAdmin = ['admin', 'manager'].includes(myRole);
@@ -13,6 +15,8 @@ const CreateTaskModal = ({ projectId, workspaceId, columnId, project, onClose, m
   const [priority, setPriority] = useState('medium');
   const [dueDate, setDueDate] = useState('');
   const [assignees, setAssignees] = useState([]);
+  const [showAddMember, setShowAddMember] = useState(false);
+  const [assigneeSearch, setAssigneeSearch] = useState('');
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data) => api.post('/tasks', data).then(r => r.data),
@@ -94,9 +98,26 @@ const CreateTaskModal = ({ projectId, workspaceId, columnId, project, onClose, m
 
         {isManagerOrAdmin && project?.members?.length > 0 && (
           <div className="input-group">
-            <label className="input-label">Assignees (Optional)</label>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {project.members.map(m => {
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <label className="input-label" style={{ marginBottom: 0 }}>Assignees (Optional)</label>
+              <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                <div style={{ position: 'relative' }}>
+                  <Search size={12} style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }} />
+                  <input 
+                    type="text" 
+                    placeholder="Search..." 
+                    value={assigneeSearch}
+                    onChange={(e) => setAssigneeSearch(e.target.value)}
+                    style={{ fontSize: 11, padding: '2px 8px 2px 26px', height: 24, borderRadius: 4, border: '1px solid var(--color-border)', background: 'transparent' }}
+                  />
+                </div>
+                <button type="button" className="text-accent text-xs hover-underline" onClick={() => setShowAddMember(true)}>
+                  Add Team
+                </button>
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, maxHeight: 120, overflowY: 'auto', padding: 2 }}>
+              {project.members.filter(m => m.name.toLowerCase().includes(assigneeSearch.toLowerCase())).map(m => {
                 const isSelected = assignees.includes(m._id);
                 return (
                   <button
@@ -114,7 +135,7 @@ const CreateTaskModal = ({ projectId, workspaceId, columnId, project, onClose, m
                     }}
                   >
                     <Avatar name={m.name || '?'} size="sm" src={m.avatar} />
-                    <span style={{ fontSize: 12, fontWeight: 500, color: isSelected ? 'var(--color-text)' : 'var(--color-text-secondary)' }}>
+                    <span style={{ fontSize: 12, fontWeight: 500, color: isSelected ? 'var(--color-text)' : 'var(--color-text)' }}>
                       {m.name.split(' ')[0]}
                     </span>
                   </button>
@@ -122,6 +143,14 @@ const CreateTaskModal = ({ projectId, workspaceId, columnId, project, onClose, m
               })}
             </div>
           </div>
+        )}
+
+        {showAddMember && (
+          <AddProjectMemberModal 
+            projectId={projectId}
+            currentMembers={project.members}
+            onClose={() => setShowAddMember(false)}
+          />
         )}
 
         <div className="modal-footer" style={{ margin: '16px -20px -20px -20px' }}>

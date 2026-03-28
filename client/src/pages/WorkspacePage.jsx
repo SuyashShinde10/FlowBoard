@@ -73,6 +73,15 @@ const WorkspacePage = () => {
     onError: (err) => toast.error(err.response?.data?.message || 'Failed to remove')
   });
 
+  const { mutate: updateMemberRole } = useMutation({
+    mutationFn: ({ userId, role }) => api.put(`/workspaces/${workspaceId}/members/${userId}/role`, { role }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['workspace', workspaceId]);
+      toast.success('Member role updated');
+    },
+    onError: (err) => toast.error(err.response?.data?.message || 'Failed to update role')
+  });
+
   const handleUpdate = (e) => {
     e.preventDefault();
     if (!editName.trim()) return toast.error('Name is required');
@@ -254,13 +263,29 @@ const WorkspacePage = () => {
                   <div className="member-email">{m.user?.email}</div>
                 </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                {m.role === 'admin' && <Crown size={14} className="text-warning" />}
-                {m.role === 'manager' && <ShieldCheck size={14} className="text-accent" />}
-                {m.role === 'member' && <UserIcon size={14} className="text-tertiary" />}
-                <span className={`badge badge-${m.role === 'admin' ? 'primary' : m.role === 'manager' ? 'warning' : 'default'}`}>
-                  {m.role}
-                </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                {isOwnerAdmin && m.user?._id !== user?._id ? (
+                  <select 
+                    className="input-sm" 
+                    value={m.role} 
+                    onChange={(e) => updateMemberRole({ userId: m.user._id, role: e.target.value })}
+                    style={{ fontSize: 11, height: 28, padding: '0 4px', width: 90 }}
+                  >
+                    <option value="admin">Admin</option>
+                    <option value="manager">Manager</option>
+                    <option value="member">Member</option>
+                  </select>
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {m.role === 'admin' && <Crown size={14} className="text-warning" />}
+                    {m.role === 'manager' && <ShieldCheck size={14} className="text-accent" />}
+                    {m.role === 'member' && <UserIcon size={14} className="text-tertiary" />}
+                    <span className={`badge badge-${m.role === 'admin' ? 'primary' : m.role === 'manager' ? 'warning' : 'default'}`}>
+                      {m.role}
+                    </span>
+                  </div>
+                )}
+
                 {isOwnerAdmin && m.user?._id !== user?._id && (
                   <button 
                     className="btn btn-ghost btn-icon btn-xs text-danger" 
