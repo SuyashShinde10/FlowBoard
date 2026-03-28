@@ -3,11 +3,10 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
-const connectDB = require('./config/db');
-const socketHandler = require('./socket/socket');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const rateLimit = require('express-rate-limit');
+const connectDB = require('./config/db');
 
 // Routes
 const authRoutes = require('./routes/auth.routes');
@@ -19,55 +18,38 @@ const analyticsRoutes = require('./routes/analytics.routes');
 const app = express();
 app.set('trust proxy', 1);
 
-// Better CORS origins handling
-const origins = [
+// 1. CORS ALWAYS FIRST
+const allowedOrigins = [
   'https://flowboard-self.vercel.app',
   process.env.CLIENT_URL,
-  'http://localhost:5173',
-  'http://localhost:5174',
-  'http://localhost:5175'
+  'http://localhost:5173'
 ].filter(Boolean).map(o => o.replace(/\/$/, ''));
-const allowedOrigins = [...new Set(origins)];
 
-// 1. CORS first (crucial for preflight)
 app.use(cors({
-  origin: true, // Dynamically allow the site's origin
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1 || origin.includes('vercel.app')) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Allow all in prod temporarily to fix 502/CORS death
+    }
+  },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
-const httpServer = http.createServer(app);
+// 2. Preflight handling
+app.options('*', cors());
 
-// Socket.IO sync
-const io = new Server(httpServer, {
-  cors: { origin: allowedOrigins, credentials: true, methods: ['GET', 'POST', 'PUT', 'DELETE'] },
-});
-app.set('io', io);
-socketHandler(io);
-
-// Middleware
+// 3. Security (relaxed for stability)
 app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" } // Allow cross-origin assets
+  crossOriginResourcePolicy: false,
+  crossOriginEmbedderPolicy: false,
+  contentSecurityPolicy: false,
 }));
 app.use(mongoSanitize());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Global Rate Limiting
-const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  message: { message: 'Too many requests. Please try again in 15 minutes.' }
-});
-app.use('/api', globalLimiter);
-
-// Stricter Rate Limiting for Auth
-const authLimiter = rateLimit({
-  windowMs: 30 * 60 * 1000,
-  max: 20,
-  message: { message: 'Too many login attempts. Please try again in 30 minutes.' }
-});
-app.use('/api/auth/login', authLimiter);
-app.use('/api/auth/register', authLimiter);
 
 // Connect DB
 connectDB();
@@ -78,9 +60,16 @@ app.use('/api/workspaces', workspaceRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.get('/api/health', (req, res) => res.json({ status: 'OK' }));
 
-// Health check
-app.get('/api/health', (req, res) => res.json({ status: 'OK', timestamp: new Date().toISOString() }));
+const httpServer = http.createServer(app);
+const socketHandler = require('./socket/socket');
+const io = new Server(httpServer, {
+  cors: { origin: allowedOrigins, credentials: true },
+  transports: ['websocket', 'polling']
+});
+app.set('io', io);
+socketHandler(io);
 
 // 404 handler
 app.use((req, res) => res.status(404).json({ message: 'Route not found' }));
@@ -93,18 +82,15 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 httpServer.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
   
-  // Keep Render alive (self-pinging every 14 minutes)
   const cronUrl = process.env.RENDER_EXTERNAL_URL;
   if (cronUrl) {
+    const protocol = cronUrl.startsWith('https') ? require('https') : require('http');
     setInterval(() => {
-      const protocol = cronUrl.startsWith('https') ? require('https') : require('http');
-      protocol.get(`${cronUrl.replace(/\/$/, '')}/api/health`, (res) => {
-        console.log('💓 Heartbeat: Keeping server alive');
-      }).on('error', (err) => {
-        console.error('💓 Heartbeat error:', err.message);
-      });
-    }, 14 * 60 * 1000); 
+      protocol.get(`${cronUrl.replace(/\/$/, '')}/api/health`, () => {
+        console.log('💓 Heartbeat');
+      }).on('error', () => {});
+    }, 10 * 60 * 1000);
   }
 });
