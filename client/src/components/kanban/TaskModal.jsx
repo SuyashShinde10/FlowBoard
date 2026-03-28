@@ -71,7 +71,11 @@ const TaskModal = () => {
 
   const commentMutation = useMutation({
     mutationFn: (content) => api.post(`/tasks/${taskModalData._id}/comments`, { content }).then(r => r.data),
-    onSuccess: (nc) => { setComments(prev => [...prev, nc]); setComment(''); },
+    onSuccess: (nc) => { 
+      queryClient.invalidateQueries(['task', taskModalData._id]);
+      setComments(prev => [...prev, nc]);
+      setComment(''); 
+    },
     onError: (err) => toast.error(err.response?.data?.message || 'Failed to post comment'),
   });
 
@@ -261,7 +265,13 @@ const TaskModal = () => {
                   </button>
                   {task?.attachments?.map((att, i) => (
                     <div key={i} className="attachment-item-wrapper">
-                      <a href={att.url} target="_blank" rel="noopener noreferrer" className="attachment-row">
+                      <a 
+                        href={att.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="attachment-row"
+                        title="Click to view or download"
+                      >
                         <Paperclip size={13} />
                         <span className="attachment-name">{att.originalName || att.url}</span>
                       </a>
