@@ -243,6 +243,57 @@ const AuthPage = () => {
         </div>
       </div>
 
+      {/* Role-Based Walkthrough Section */}
+      <section className="walkthrough-section">
+        <div className="walkthrough-container">
+          <div className="walkthrough-header">
+            <h2 className="walkthrough-title">One Platform. <br /><span className="text-secondary text-gradient">Custom Roles.</span></h2>
+            <p className="walkthrough-subtitle">FlowBoard adapt to your workflow whether you are managing an entire department or shipping your next big feature.</p>
+          </div>
+
+          <div className="walkthrough-grid">
+            <div className="walkthrough-card">
+              <div className="walkthrough-role-head">
+                <div className="role-badge admin">Admin</div>
+                <h3>Organization Owner</h3>
+              </div>
+              <ul className="walkthrough-list">
+                <li>Create and structure top-level Workspaces.</li>
+                <li>Design and deploy multi-project architectures.</li>
+                <li>Manage enterprise-wide user roles and RBAC.</li>
+                <li>Analyze high-level productivity across the organization.</li>
+              </ul>
+            </div>
+
+            <div className="walkthrough-card">
+              <div className="walkthrough-role-head">
+                <div className="role-badge manager">Manager</div>
+                <h3>Project Leader</h3>
+              </div>
+              <ul className="walkthrough-list">
+                <li>Create projects, columns, and custom Kanban workflows.</li>
+                <li>Invite team members to specific projects.</li>
+                <li>Define task priorities, due dates, and assignments.</li>
+                <li>Track project health via the Analytics Dashboard.</li>
+              </ul>
+            </div>
+
+            <div className="walkthrough-card">
+              <div className="walkthrough-role-head">
+                <div className="role-badge member">Member</div>
+                <h3>Collaborator</h3>
+              </div>
+              <ul className="walkthrough-list">
+                <li>Build components and features via real-time boards.</li>
+                <li>Participate in task discussions and live threads.</li>
+                <li>Upload attachments and documentation for team review.</li>
+                <li>Track personal deadlines and project changes instantly.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Modern Footer */}
       <footer className="landing-footer">
         <div className="footer-content">
