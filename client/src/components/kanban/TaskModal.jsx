@@ -86,7 +86,7 @@ const TaskModal = () => {
   });
 
   const deleteAttachmentMutation = useMutation({
-    mutationFn: (filename) => api.delete(`/tasks/${taskModalData._id}/attachments/${filename}`),
+    mutationFn: (filename) => api.delete(`/tasks/${taskModalData._id}/attachments/${encodeURIComponent(filename)}`),
     onSuccess: () => { queryClient.invalidateQueries(['task', taskModalData._id]); toast.success('Attachment deleted'); },
     onError: () => toast.error('Failed to delete attachment'),
   });
