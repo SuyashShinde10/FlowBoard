@@ -11,9 +11,10 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary,
   params: async (req, file) => {
+    const isImage = file.mimetype.startsWith('image/');
     return {
       folder: 'pmp-attachments',
-      resource_type: 'auto', // Cloudinary will auto-detect type
+      resource_type: isImage ? 'image' : 'raw',
     };
   },
 });
