@@ -309,17 +309,13 @@ const AuthPage = () => {
               <div className="footer-column">
                 <h4>Product</h4>
                 <Link to="/features">Features</Link>
-                <a href="#">Integrations</a>
                 <Link to="/pricing">Pricing</Link>
-                <a href="#">Changelog</a>
               </div>
               <div className="footer-column">
                 <h4>Company</h4>
                 <Link to="/customers">Customers</Link>
-                <a href="#">About Us</a>
-                <a href="#">Careers</a>
-                <a href="#">Blog</a>
-                <a href="#">Contact</a>
+                <Link to="/about">About Us</Link>
+                <Link to="/contact">Contact</Link>
               </div>
             <div className="footer-column">
               <h4>Legal</h4>
@@ -331,11 +327,6 @@ const AuthPage = () => {
         </div>
         <div className="footer-bottom">
           <p>© {new Date().getFullYear()} FlowBoard Inc. All rights reserved.</p>
-          <div className="social-links">
-            <a href="#">Twitter</a>
-            <a href="#">GitHub</a>
-            <a href="#">LinkedIn</a>
-          </div>
         </div>
       </footer>
     </div>

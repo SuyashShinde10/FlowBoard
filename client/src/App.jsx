@@ -14,6 +14,8 @@ import SettingsPage from './pages/SettingsPage';
 import FeaturesPage from './pages/landing/FeaturesPage';
 import CustomersPage from './pages/landing/CustomersPage';
 import PricingPage from './pages/landing/PricingPage';
+import AboutPage from './pages/landing/AboutPage';
+import ContactPage from './pages/landing/ContactPage';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30000 } },
@@ -40,6 +42,8 @@ function App() {
           <Route path="/features" element={<FeaturesPage />} />
           <Route path="/customers" element={<CustomersPage />} />
           <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
           
           <Route element={
             <ProtectedRoute>
