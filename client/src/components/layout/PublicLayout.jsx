@@ -48,16 +48,13 @@ const PublicLayout = ({ children, hideFooter = false }) => {
               <div className="footer-column">
                 <h4>Product</h4>
                 <button className="footer-btn" onClick={() => navigate('/features')}>Features</button>
-                <a href="#">Integrations</a>
                 <button className="footer-btn" onClick={() => navigate('/pricing')}>Pricing</button>
-                <a href="#">Changelog</a>
               </div>
               <div className="footer-column">
                 <h4>Company</h4>
                 <button className="footer-btn" onClick={() => navigate('/customers')}>Customers</button>
-                <a href="#">About Us</a>
-                <a href="#">Careers</a>
-                <a href="#">Blog</a>
+                <button className="footer-btn" onClick={() => navigate('/about')}>About Us</button>
+                <button className="footer-btn" onClick={() => navigate('/contact')}>Contact</button>
               </div>
               <div className="footer-column">
                 <h4>Legal</h4>
@@ -69,11 +66,6 @@ const PublicLayout = ({ children, hideFooter = false }) => {
           </div>
           <div className="footer-bottom">
             <p>© {new Date().getFullYear()} FlowBoard Inc. All rights reserved.</p>
-            <div className="social-links">
-              <a href="#">Twitter</a>
-              <a href="#">GitHub</a>
-              <a href="#">LinkedIn</a>
-            </div>
           </div>
         </footer>
       )}
